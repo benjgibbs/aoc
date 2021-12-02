@@ -1,11 +1,10 @@
 use regex::Regex;
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, Error};
 
-pub fn read_lines(filename: &str) -> Vec<String> {
-    let file = File::open(filename);
-    let br = io::BufReader::new(file.unwrap());
-    return br.lines().map(|l| l.unwrap()).collect();
+pub fn read_lines(filename: &str) -> Result<Vec<String>, Error> {
+    return File::open(filename)
+        .and_then(|f| Ok(io::BufReader::new(f).lines().map(|l| l.unwrap()).collect()));
 }
 
 pub fn get_nums(line: &str) -> Vec<i32> {

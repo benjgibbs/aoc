@@ -1,7 +1,7 @@
 use aoc::{get_nums, read_lines};
 
 fn main() {
-  let moves = read_lines("./input/day2.txt");
+  let moves = read_lines("./input/day2.txt").unwrap();
   let mut x = 0;
   let mut y = 0;
 

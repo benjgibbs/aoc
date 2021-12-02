@@ -1,7 +1,7 @@
 use aoc::read_lines;
 
 fn main() {
-    let lines: Vec<String> = read_lines("./input/day1.txt");
+    let lines: Vec<String> = read_lines("./input/day1.txt").unwrap();
     let depths: Vec<i32> = lines
         .into_iter()
         .map(|br| br.parse::<i32>().unwrap())
