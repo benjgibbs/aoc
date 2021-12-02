@@ -9,15 +9,15 @@ fn main() {
 
         let mut last = 0;
         let mut count = 0;
-        let mut first = true;
+        let mut done_first = false;
 
         for current in depths.iter() {
-            if first {
-                first = false;
-            } else {
+            if done_first {
                 if *current > last {
                     count += 1;
                 }
+            } else {
+                done_first = true;
             }
             last = *current;
         }
