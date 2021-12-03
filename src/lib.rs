@@ -3,8 +3,13 @@ use std::fs::File;
 use std::io::{self, BufRead, Error};
 
 pub fn read_lines(filename: &str) -> Result<Vec<String>, Error> {
-    return File::open(filename)
-        .and_then(|f| Ok(io::BufReader::new(f).lines().map(|l| l.unwrap()).collect()));
+    return File::open(filename).and_then(|f| {
+        Ok(io::BufReader::new(f)
+            .lines()
+            .into_iter()
+            .flatten()
+            .collect())
+    });
 }
 
 pub fn get_nums(line: &str) -> Vec<i32> {
