@@ -1,19 +1,19 @@
-use aoc::{read_lines,get_nums};
+use aoc::{get_nums, read_lines};
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
 pub struct Board {
     board: Vec<Vec<i32>>,
     rows: Vec<HashSet<i32>>,
-    cols: Vec<HashSet<i32>>
+    cols: Vec<HashSet<i32>>,
 }
 
 impl Board {
     pub fn new(b: Vec<Vec<i32>>) -> Board {
         Board {
-            rows : Board::rows(&b),
-            cols : Board::cols(&b),
-            board : b,
+            rows: Board::rows(&b),
+            cols: Board::cols(&b),
+            board: b,
         }
     }
     pub fn bingo(&self, calls: &HashSet<i32>) -> bool {
@@ -44,9 +44,11 @@ impl Board {
     }
 
     fn rows(board: &Vec<Vec<i32>>) -> Vec<HashSet<i32>> {
-        return board.iter().map(|r| HashSet::from_iter(r.iter().cloned())).collect();
+        return board
+            .iter()
+            .map(|r| HashSet::from_iter(r.iter().cloned()))
+            .collect();
     }
-    
     fn cols(board: &Vec<Vec<i32>>) -> Vec<HashSet<i32>> {
         let mut result = Vec::new();
         for i in 0..board.get(0).unwrap().len() {
@@ -77,17 +79,17 @@ fn main() {
             }
         }
         let mut called = HashSet::new();
-        let mut won : HashSet<usize> = HashSet::new();
-        let mut winner : Option<i32> = None;
+        let mut won: HashSet<usize> = HashSet::new();
+        let mut winner: Option<i32> = None;
 
         for i in 0..calls.len() {
             called.insert(*calls.get(i).unwrap());
             for bi in 0..boards.len() {
-                if ! won.contains(&bi) {
+                if !won.contains(&bi) {
                     let b = boards.get(bi).unwrap();
                     if b.bingo(&called) {
                         let score = b.score(&called, *calls.get(i).unwrap());
-                        if winner.is_none()  {
+                        if winner.is_none() {
                             println!("Part 1 (32844): {}", score);
                         }
                         winner = Some(score);
@@ -96,6 +98,6 @@ fn main() {
                 }
             }
         }
-        print!("Part 2 (4920): {}", winner.unwrap());
+        println!("Part 2 (4920): {}", winner.unwrap());
     }
 }
