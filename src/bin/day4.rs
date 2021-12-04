@@ -11,8 +11,8 @@ pub struct Board {
 impl Board {
     pub fn new(b: Vec<Vec<i32>>) -> Board {
         Board {
-            rows : rows(&b),
-            cols : cols(&b),
+            rows : Board::rows(&b),
+            cols : Board::cols(&b),
             board : b,
         }
     }
@@ -42,12 +42,27 @@ impl Board {
         }
         return result * last_call;
     }
+
+    fn rows(board: &Vec<Vec<i32>>) -> Vec<HashSet<i32>> {
+        return board.iter().map(|r| HashSet::from_iter(r.iter().cloned())).collect();
+    }
+    
+    fn cols(board: &Vec<Vec<i32>>) -> Vec<HashSet<i32>> {
+        let mut result = Vec::new();
+        for i in 0..board.get(0).unwrap().len() {
+            let mut c = HashSet::new();
+            for j in 0..board.len() {
+                c.insert(*board.get(j).unwrap().get(i).unwrap());
+            }
+            result.push(c);
+        }
+        return result;
+    }
 }
 
 fn main() {
     if let Ok(lines) = read_lines("./input/day4.txt") {
         let calls = get_nums(lines.get(0).unwrap());
-        println!("{:?}", calls);
 
         let mut boards = Vec::new();
         let mut board = Vec::new();
@@ -63,38 +78,24 @@ fn main() {
         }
         let mut called = HashSet::new();
         let mut won : HashSet<usize> = HashSet::new();
+        let mut winner : Option<i32> = None;
+
         for i in 0..calls.len() {
             called.insert(*calls.get(i).unwrap());
-
             for bi in 0..boards.len() {
                 if ! won.contains(&bi) {
-                    if boards.get(bi).unwrap().bingo(&called) {
-                        println!("Winner: {}", boards.get(bi).unwrap().score(&called, *calls.get(i).unwrap()));
+                    let b = boards.get(bi).unwrap();
+                    if b.bingo(&called) {
+                        let score = b.score(&called, *calls.get(i).unwrap());
+                        if winner.is_none()  {
+                            println!("Part 1 (32844): {}", score);
+                        }
+                        winner = Some(score);
                         won.insert(bi);
-                        //Winner: 32844
                     }
                 }
             }
         }
+        print!("Part 2 (4920): {}", winner.unwrap());
     }
-}
-
-fn rows(board: &Vec<Vec<i32>>) -> Vec<HashSet<i32>> {
-    let mut result = Vec::new();
-    for r in board {
-        result.push(HashSet::from_iter(r.iter().cloned()));
-    }
-    return result;
-}
-
-fn cols(board: &Vec<Vec<i32>>) -> Vec<HashSet<i32>> {
-    let mut result = Vec::new();
-    for i in 0..board.get(0).unwrap().len() {
-        let mut c = HashSet::new();
-        for j in 0..board.len() {
-            c.insert(*board.get(j).unwrap().get(i).unwrap());
-        }
-        result.push(c);
-    }
-    return result;
 }
