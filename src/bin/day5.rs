@@ -19,12 +19,11 @@ fn main() {
             }
         }
 
-        let more_than_one: Vec<((i32, i32), i32)> = vents.iter()
+        let more_than_one = vents.iter()
                 .filter(|kvp| *kvp.1 > 1)
-                .map(|kvp| (*kvp.0, *kvp.1) )
-                .collect();
+                .count();
         
-        println!("Part1 (6841): {}", more_than_one.len());
+        println!("Part1 (6841): {}", more_than_one);
 
         for line in lines.iter() {
             let nums = get_nums(&line);
@@ -34,31 +33,18 @@ fn main() {
                 let x_inc = if start.0 > end.0 {-1} else {1};
                 let y_inc = if start.1 > end.1 {-1} else {1};
                 let mut pos = (*start.0, *start.1);
-                while pos != (*end.0, *end.1) {
+                while pos != (*end.0 + x_inc, *end.1 + y_inc) {
                     let e  = vents.entry(pos).or_insert(0);
                     *e += 1;
                     pos = (pos.0 + x_inc, pos.1 + y_inc);
                 };
-                let e  = vents.entry( (*end.0, *end.1)).or_insert(0);
-                *e += 1;
             }
         }
 
-        let more_than_one: Vec<((i32, i32), i32)> = vents.iter()
+        let more_than_one = vents.iter()
                 .filter(|kvp| *kvp.1 > 1)
-                .map(|kvp| (*kvp.0, *kvp.1) )
-                .collect();
+                .count();
 
-        println!("Part2 (19258): {}", more_than_one.len());
+        println!("Part2 (19258): {}", more_than_one);
     }
 }
-
-// fn print(vents: &HashMap<(i32,i32), i32>) {
-//     for  i in 0..10 {
-//         for j in 0..10 {
-//             let c = (j,i);
-//             print!("{} ", vents.get(&c).or(Some(&0)).unwrap());
-//         }
-//         println!("");
-//     }
-// }
