@@ -38,29 +38,27 @@ fn count_adjacent2(pos: (u32, u32), tile: usize, universe: &VecDeque<u32>) -> us
             }
         }
     }
-    if tile < universe.len() -1 {
+    if tile < universe.len() - 1 {
         let tile = *universe.get(tile + 1).unwrap();
-        if pos == (2,1) {
+        if pos == (2, 1) {
             for x in 0..GRID_SIZE {
                 if get((x, 0), tile) {
                     adjacent += 1;
                 }
             }
-        } else if pos == (1,2) {
+        } else if pos == (1, 2) {
             for y in 0..GRID_SIZE {
                 if get((0, y), tile) {
                     adjacent += 1;
                 }
             }
-
         } else if pos == (3, 2) {
             for y in 0..GRID_SIZE {
                 if get((4, y), tile) {
                     adjacent += 1;
                 }
             }
-
-        } else if pos == (2,3) {
+        } else if pos == (2, 3) {
             for x in 0..GRID_SIZE {
                 if get((x, 4), tile) {
                     adjacent += 1;
@@ -144,11 +142,11 @@ fn part1(input: &Vec<String>) -> i64 {
     let mut tile = init_tile(input);
 
     let mut seen = HashSet::new();
-    print_tile(tile);
+    //print_tile(tile);
     while !seen.contains(&tile) {
         seen.insert(tile);
         tile = next_tile(tile);
-        print_tile(tile);
+        //print_tile(tile);
     }
     return biodiversity(tile);
 }
@@ -202,10 +200,10 @@ fn part2(input: &Vec<String>, iterations: i32) -> i32 {
         }
     }
 
-    for i in universe.iter() {
-        print_tile(*i);
-        println!();
-    }
+    // for i in universe.iter() {
+    //     print_tile(*i);
+    //     println!();
+    // }
 
     return count;
 }
@@ -213,9 +211,7 @@ fn part2(input: &Vec<String>, iterations: i32) -> i32 {
 fn main() {
     if let Ok(lines) = read_lines("./input/2019-24.txt") {
         println!("Part 1 (32526865): {}", part1(&lines));
-
-        //1851 too low
-        println!("Part 2 (): {}", part2(&lines, 200));
+        println!("Part 2 (2009): {}", part2(&lines, 200));
     }
 }
 
