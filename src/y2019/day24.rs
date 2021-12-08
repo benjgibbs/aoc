@@ -102,6 +102,7 @@ fn next_tile(tile: u32) -> u32 {
     return result;
 }
 
+#[allow(dead_code)]
 fn print_tile(tile: u32) {
     for y in 0..GRID_SIZE {
         for x in 0..GRID_SIZE {
@@ -208,8 +209,8 @@ fn part2(input: &Vec<String>, iterations: i32) -> i32 {
     return count;
 }
 
-fn main() {
-    if let Ok(lines) = read_lines("./input/2019-24.txt") {
+pub fn run() {
+    if let Ok(lines) = read_lines("./input/2019/day24.txt") {
         println!("Part 1 (32526865): {}", part1(&lines));
         println!("Part 2 (2009): {}", part2(&lines, 200));
     }
@@ -220,15 +221,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn run() {
+        super::run();
+    }
+
+    #[test]
     fn example_part1() {
-        if let Ok(lines) = read_lines("./input/2019-24-example.txt") {
+        if let Ok(lines) = read_lines("./input/2019/example24.txt") {
             assert_eq!(2129920, part1(&lines));
         }
     }
 
     #[test]
     fn example_part2() {
-        if let Ok(lines) = read_lines("./input/2019-24-example.txt") {
+        if let Ok(lines) = read_lines("./input/2019/example24.txt") {
             assert_eq!(99, part2(&lines, 10));
         }
     }

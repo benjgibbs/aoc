@@ -1,3 +1,5 @@
+mod y2019;
+
 fn main() {
-    println!("Hello, world!");
+    y2019::day24::run();
 }
