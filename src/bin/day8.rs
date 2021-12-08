@@ -7,7 +7,7 @@ fn main() {
         let mut count = 0;
         for line in lines.iter() {
             let m = line
-                .split(" | ")
+                .split("|")
                 .collect::<Vec<&str>>()
                 .get(1)
                 .unwrap()
@@ -18,13 +18,34 @@ fn main() {
         }
         println!("Part1 (530): {}", count);
 
-        let mut sum = 0;
-        for line in lines.iter() {
-            let num = decode_line(line);
-            sum += num;
-        }
-        println!("Part2: {}", sum);
+        println!("Part2 (1051087): {}", sum_decoded_lines(&lines));
     }
+}
+
+fn sum_decoded_lines(lines: &Vec<String>) -> i32 {
+    let mut sum = 0;
+    for line in lines.iter() {
+        let num = decode_line(line);
+        sum += num;
+    }
+    return sum;
+}
+
+fn get_singleton<'a>(m: &'a HashMap<usize, HashSet<BTreeSet<char>>>, i: usize) -> &'a BTreeSet<char> {
+    return m.get(&i).unwrap().iter().nth(0).unwrap();
+}
+
+fn get_predicated<'a, F>(m: &'a HashMap<usize, HashSet<BTreeSet<char>>>, sz: usize,  p: F) 
+    -> &'a BTreeSet<char> 
+where
+    F: FnMut(&&BTreeSet<char>) -> bool {
+    return m
+        .get(&sz)
+        .unwrap()
+        .iter()
+        .filter(p)
+        .nth(0)
+        .unwrap();
 }
 
 fn decode_line(line: &str) -> i32 {
@@ -36,62 +57,21 @@ fn decode_line(line: &str) -> i32 {
             .or_insert(HashSet::<BTreeSet<char>>::new())
             .insert(s);
     }
-    let one = counts.get(&2).unwrap().iter().nth(0).unwrap();
-    let four = counts.get(&4).unwrap().iter().nth(0).unwrap();
-    let seven = counts.get(&3).unwrap().iter().nth(0).unwrap();
-    let eight = counts.get(&7).unwrap().iter().nth(0).unwrap();
 
-    let nine = counts
-        .get(&6)
-        .unwrap()
-        .iter()
-        .filter(|s| s.is_superset(four))
-        .nth(0)
-        .unwrap();
+    let one = get_singleton(&counts, 2);
+    let four = get_singleton(&counts, 4);
+    let seven = get_singleton(&counts, 3);
+    let eight = get_singleton(&counts, 7);
 
-    let three = counts
-        .get(&5)
-        .unwrap()
-        .iter()
-        .filter(|s| s.is_superset(one))
-        .nth(0)
-        .unwrap();
-
-    let five = counts
-        .get(&5)
-        .unwrap()
-        .iter()
-        .filter(|s| s.is_subset(nine) && *s != three)
-        .nth(0)
-        .unwrap();
-
+    let nine = get_predicated(&counts, 6, |s| s.is_superset(four));
+    let three = get_predicated(&counts, 5, |s| s.is_superset(one));
+    let five = get_predicated(&counts, 5, |s| s.is_subset(nine) && *s != three);
+    let two = get_predicated(&counts, 5, |s| *s != three && *s != five);
     
-
-    let two = counts
-        .get(&5)
-        .unwrap()
-        .iter()
-        .filter(|s| *s != three && *s != five)
-        .nth(0)
-        .unwrap();
-
     let top_right = one.intersection(two).nth(0).unwrap();
 
-    let zero = counts
-        .get(&6)
-        .unwrap()
-        .iter()
-        .filter(|s| *s != nine && s.contains(top_right))
-        .nth(0)
-        .unwrap();
-
-    let six = counts
-        .get(&6)
-        .unwrap()
-        .iter()
-        .filter(|s| *s != zero && *s != nine)
-        .nth(0)
-        .unwrap();
+    let zero = get_predicated(&counts, 6, |s| *s != nine && s.contains(top_right));
+    let six = get_predicated(&counts, 6, |s| *s != zero && *s != nine);
 
     let lookup = HashMap::from([
         (one, 1),
@@ -105,17 +85,6 @@ fn decode_line(line: &str) -> i32 {
         (nine, 9),
         (zero, 0),
     ]);
-    println!("0: {:?}", zero);
-    println!("1: {:?}", one);
-    println!("2: {:?}", two);
-    println!("3: {:?}", three);
-    println!("4: {:?}", four);
-    println!("5: {:?}", five);
-    println!("6: {:?}", six);
-    println!("7: {:?}", seven);
-    println!("8: {:?}", eight);
-    println!("9: {:?}", nine);
-    println!();
 
     let mut pos = 1;
     let mut num = 0;
@@ -131,7 +100,6 @@ fn decode_line(line: &str) -> i32 {
         .rev()
     {
         let resultid: BTreeSet<char> = result.chars().collect();
-        println!("{:?}", resultid);
         num += pos * lookup[&resultid];
         pos *= 10;
     }
@@ -156,14 +124,12 @@ mod tests {
     }
 
     #[test]
-    fn full_part_2() {
+    fn full_day_18_part_2() {
         if let Ok(lines) = read_lines("./input/example8.txt") {
-            let mut sum = 0;
-            for line in lines.iter() {
-                let num = decode_line(line);
-                sum += num;
-            }
-            assert_eq!(61229, sum);
+            assert_eq!(61229, sum_decoded_lines(&lines));
+        }
+        if let Ok(lines) = read_lines("./input/day8.txt") {
+            assert_eq!(1051087, sum_decoded_lines(&lines));
         }
     }
 }
