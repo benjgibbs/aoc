@@ -5,14 +5,14 @@ use aoc::read_lines;
 fn main() {
     if let Ok(lines) = read_lines("./input/day8.txt") {
         let mut count = 0;
+        let unique_counts = HashSet::from([2, 4, 3, 7]);
         for line in lines.iter() {
             let m = line
                 .split("|")
-                .collect::<Vec<&str>>()
-                .get(1)
+                .nth(1)
                 .unwrap()
                 .split(" ")
-                .filter(|s| HashSet::from([2, 4, 3, 7]).contains(&s.len()))
+                .filter(|s| unique_counts.contains(&s.len()))
                 .count();
             count += m;
         }
@@ -31,21 +31,26 @@ fn sum_decoded_lines(lines: &Vec<String>) -> i32 {
     return sum;
 }
 
-fn get_singleton<'a>(m: &'a HashMap<usize, HashSet<BTreeSet<char>>>, i: usize) -> &'a BTreeSet<char> {
-    return m.get(&i).unwrap().iter().nth(0).unwrap();
+fn get_singleton<'a>(
+    m: &'a HashMap<usize, HashSet<BTreeSet<char>>>,
+    i: usize,
+) -> &'a BTreeSet<char> {
+    let all = m.get(&i).unwrap();
+    assert_eq!(1, all.len());
+    return all.iter().nth(0).unwrap();
 }
 
-fn get_predicated<'a, F>(m: &'a HashMap<usize, HashSet<BTreeSet<char>>>, sz: usize,  p: F) 
-    -> &'a BTreeSet<char> 
+fn get_predicated<'a, F>(
+    m: &'a HashMap<usize, HashSet<BTreeSet<char>>>,
+    sz: usize,
+    p: F,
+) -> &'a BTreeSet<char>
 where
-    F: FnMut(&&BTreeSet<char>) -> bool {
-    return m
-        .get(&sz)
-        .unwrap()
-        .iter()
-        .filter(p)
-        .nth(0)
-        .unwrap();
+    F: FnMut(&&BTreeSet<char>) -> bool,
+{
+    let all : Vec<&BTreeSet<char>> = m.get(&sz).unwrap().iter().filter(p).collect();
+    assert_eq!(1, all.len());
+    return all.get(0).unwrap();
 }
 
 fn decode_line(line: &str) -> i32 {
@@ -67,7 +72,7 @@ fn decode_line(line: &str) -> i32 {
     let three = get_predicated(&counts, 5, |s| s.is_superset(one));
     let five = get_predicated(&counts, 5, |s| s.is_subset(nine) && *s != three);
     let two = get_predicated(&counts, 5, |s| *s != three && *s != five);
-    
+
     let top_right = one.intersection(two).nth(0).unwrap();
 
     let zero = get_predicated(&counts, 6, |s| *s != nine && s.contains(top_right));
@@ -86,22 +91,21 @@ fn decode_line(line: &str) -> i32 {
         (zero, 0),
     ]);
 
-    let mut pos = 1;
-    let mut num = 0;
-    for result in line
+    let digits: Vec<&str> = line
         .split("|")
-        .collect::<Vec<&str>>()
-        .get(1)
+        .nth(1)
         .unwrap()
         .split(" ")
         .filter(|s| s.trim().len() > 0)
-        .collect::<Vec<&str>>()
-        .iter()
-        .rev()
-    {
+        .collect();
+
+    let mut pow = 1;
+    let mut num = 0;
+
+    for result in digits.iter().rev() {
         let resultid: BTreeSet<char> = result.chars().collect();
-        num += pos * lookup[&resultid];
-        pos *= 10;
+        num += pow * lookup[&resultid];
+        pow *= 10;
     }
     return num;
 }
