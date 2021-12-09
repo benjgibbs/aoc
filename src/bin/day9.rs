@@ -2,7 +2,7 @@ use std::collections::{HashSet, VecDeque};
 
 use aoc::read_lines;
 
-fn nbs(p: (usize, usize), map: &Vec<Vec<u32>>) -> Vec<(usize, usize)> {
+fn nb_locs(p: (usize, usize), map: &Vec<Vec<u32>>) -> Vec<(usize, usize)> {
     let search = vec![(1, 0), (-1, 0), (0, 1), (0, -1)];
     let max_y = map.len() as i32;
     let max_x = map.get(p.1 as usize).unwrap().len() as i32;
@@ -15,17 +15,11 @@ fn nbs(p: (usize, usize), map: &Vec<Vec<u32>>) -> Vec<(usize, usize)> {
     return neighbours;
 }
 
-fn neighbours(p: (u32, u32), map: &Vec<Vec<u32>>) -> Vec<u32> {
-    let search = vec![(1, 0), (-1, 0), (0, 1), (0, -1)];
-    let max_y = map.len() as i32;
-    let max_x = map.get(p.1 as usize).unwrap().len() as i32;
-    let neighbours: Vec<u32> = search
+fn nb_heights(p: (usize, usize), map: &Vec<Vec<u32>>) -> Vec<u32> {
+    return nb_locs(p, map)
         .iter()
-        .map(|s| ((p.0 as i32) + s.0, (p.1 as i32) + s.1))
-        .filter(|s| s.0 >= 0 && s.1 >= 0 && s.0 < max_x && s.1 < max_y)
-        .map(|s| *map.get(s.1 as usize).unwrap().get(s.0 as usize).unwrap())
-        .collect();
-    return neighbours;
+        .map(|s| *map.get(s.1).unwrap().get(s.0).unwrap())
+        .collect();      
 }
 
 fn make_map(lines: &Vec<String>) -> Vec<Vec<u32>> {
@@ -44,7 +38,7 @@ fn low_points(map: &Vec<Vec<u32>>) -> Vec<(usize, usize)> {
     for y in 0..max_y {
         for x in 0..max_x {
             let height = map.get(y as usize).unwrap().get(x).unwrap();
-            let nbs = neighbours((x as u32, y as u32), &map);
+            let nbs = nb_heights((x, y), &map);
             if nbs.iter().filter(|nh| height >= nh).count() == 0 {
                 result.push((x, y));
             }
@@ -74,7 +68,7 @@ fn part2(lines: &Vec<String>) -> usize {
         basin.insert(lp);
         while !to_explore.is_empty() {
             let next = to_explore.pop_back().unwrap();
-            let unseen : Vec<(usize,usize)> = nbs(next, &map)
+            let unseen : Vec<(usize,usize)> = nb_locs(next, &map)
                 .iter()
                 .filter(|n| !basin.contains(n))
                 .filter(|n| *map.get(n.1).unwrap().get(n.0).unwrap() != 9)
