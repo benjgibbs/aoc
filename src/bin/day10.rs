@@ -2,58 +2,32 @@ use std::collections::{VecDeque, HashMap};
 
 use aoc::read_lines;
 
-fn is_corrupted(line: &str) -> bool {
+enum CorruptedResult {
+    Corrupted(char),
+    Incomplete(VecDeque<char>)
+}
+
+use CorruptedResult::*;
+
+fn line_check(line: &str) -> CorruptedResult {
     let mut q : VecDeque<char> = VecDeque::new();
     for c in line.chars() {
         match c {
             '[' | '(' | '{' | '<' => q.push_front(c),
-            ']' => if q.pop_front() != Some('[') { return true },
-            ')' => if q.pop_front() != Some('(') { return true },
-            '}' => if q.pop_front() != Some('{') { return true },
-            '>' => if q.pop_front() != Some('<') { return true },
+            ']' => if q.pop_front() != Some('[') { return Corrupted(c) },
+            ')' => if q.pop_front() != Some('(') { return Corrupted(c) },
+            '}' => if q.pop_front() != Some('{') { return Corrupted(c) },
+            '>' => if q.pop_front() != Some('<') { return Corrupted(c) },
             _ => panic!("Unexpected: {}", c)
         }
     }
-    return false;
+    return Incomplete(q);
 }
-
-fn first_corrupted_char(line: &str) -> char {
-    let mut q : VecDeque<char> = VecDeque::new();
-    for c in line.chars() {
-        match c {
-            '[' | '(' | '{' | '<' => q.push_front(c),
-            ']' => if q.pop_front() != Some('[') { return c },
-            ')' => if q.pop_front() != Some('(') { return c },
-            '}' => if q.pop_front() != Some('{') { return c },
-            '>' => if q.pop_front() != Some('<') { return c },
-            _ => panic!("Unexpected: {}", c)
-        }
-    }
-    panic!("not corrupted");
-}
-
-fn required_to_complete(line: &str) -> VecDeque<char> {
-    let mut q : VecDeque<char> = VecDeque::new();
-    for c in line.chars() {
-        match c {
-            '[' | '(' | '{' | '<' => q.push_front(c),
-            ']' => if q.pop_front() != Some('[') { panic!() },
-            ')' => if q.pop_front() != Some('(') { panic!() },
-            '}' => if q.pop_front() != Some('{') { panic!() },
-            '>' => if q.pop_front() != Some('<') { panic!() },
-            _ => panic!("Unexpected: {}", c)
-        }
-    }
-    return q;
-}
-
 
 fn part1(lines: &Vec<String>) -> i32 {
     let mut sum = 0;
     for line in lines {
-        if is_corrupted(&line) {
-            let c = first_corrupted_char(line);
-            println!("{} => {}", line, c);
+        if let Corrupted(c) = line_check(&line) {
             sum += match  c {
                 ')' => 3,
                 ']' => 57,
@@ -85,8 +59,7 @@ fn completion_score(q: &VecDeque<char>) -> u64 {
 fn part2(lines: &Vec<String>) -> u64 {
     let mut scores = Vec::new();
     for line in lines {
-        if !is_corrupted(&line) {
-            let q = required_to_complete(&line);
+        if let Incomplete(q) = line_check(&line) {
             scores.push(completion_score(&q));
         }
     }
@@ -119,26 +92,4 @@ mod tests {
         }
     }
 
-    #[test]
-    fn check_corrupted() {
-        for line in ["{([(<{}[<>[]}>{[]{[(<()>", "[[<[([]))<([[{}[[()]]]", "[{[{({}]{}}([{[{{{}}([]", "[<(<(<(<{}))><([]([]()", "<{([([[(<>()){}]>(<<{{"] {
-            println!("{}", line);
-            assert!(is_corrupted(line));
-        }
-    }
-
-    #[test]
-    fn check_not_corrupted() {
-        for line in ["[({(<(())[]>[[{[]{<()<>>", "[(()[<>])]({[<{<<[]>>(", "(((({<>}<{<{<>}{[]{[]{}", "{<[[]]>}<{[{[{[]{()[[[]", "<{([{{}}[<[[[<>{}]]]>[]]"] {
-            println!("{}", line);
-            assert!(!is_corrupted(line));
-        }
-    }
-
-    #[test]
-    fn reuturns_corruped_char() {
-        let c = first_corrupted_char("<{([([[(<>()){}]>(<<{{");
-        assert_eq!('>', c);
-
-    }
 }
