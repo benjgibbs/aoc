@@ -92,8 +92,8 @@ fn part2(lines: &Vec<String>) -> usize {
 
 fn main() {
     if let Ok(lines) = read_lines("./input/day9.txt") {
-        println!("Part1: {}", part1(&lines));
-        println!("Part2: {}", part2(&lines));
+        println!("Part1 (444): {}", part1(&lines));
+        println!("Part2 (1168440): {}", part2(&lines));
     }
 }
 
