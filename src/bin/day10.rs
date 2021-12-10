@@ -1,52 +1,58 @@
-use std::collections::{VecDeque, HashMap};
+use std::collections::{HashMap, VecDeque};
 
 use aoc::read_lines;
 
 enum CorruptedResult {
     Corrupted(char),
-    Incomplete(VecDeque<char>)
+    Incomplete(VecDeque<char>),
 }
 
 use CorruptedResult::*;
 
 fn line_check(line: &str) -> CorruptedResult {
-    let mut q : VecDeque<char> = VecDeque::new();
+    let mut q: VecDeque<char> = VecDeque::new();
     for c in line.chars() {
         match c {
             '[' | '(' | '{' | '<' => q.push_front(c),
-            ']' => if q.pop_front() != Some('[') { return Corrupted(c) },
-            ')' => if q.pop_front() != Some('(') { return Corrupted(c) },
-            '}' => if q.pop_front() != Some('{') { return Corrupted(c) },
-            '>' => if q.pop_front() != Some('<') { return Corrupted(c) },
-            _ => panic!("Unexpected: {}", c)
+            ']' => {
+                if q.pop_front() != Some('[') {
+                    return Corrupted(c);
+                }
+            }
+            ')' => {
+                if q.pop_front() != Some('(') {
+                    return Corrupted(c);
+                }
+            }
+            '}' => {
+                if q.pop_front() != Some('{') {
+                    return Corrupted(c);
+                }
+            }
+            '>' => {
+                if q.pop_front() != Some('<') {
+                    return Corrupted(c);
+                }
+            }
+            _ => panic!("Unexpected: {}", c),
         }
     }
     return Incomplete(q);
 }
 
 fn part1(lines: &Vec<String>) -> i32 {
+    let scores = HashMap::from([(')', 3), (']', 57), ('}', 1197), ('>', 25137)]);
     let mut sum = 0;
     for line in lines {
         if let Corrupted(c) = line_check(&line) {
-            sum += match  c {
-                ')' => 3,
-                ']' => 57,
-                '}' => 1197,
-                '>' => 25137,
-                _ => panic!("Unexpected char")
-            }
+            sum += scores[&c];
         }
     }
     return sum;
 }
 
 fn completion_score(q: &VecDeque<char>) -> u64 {
-    let scores = HashMap::from([
-        ('(', 1),
-        ('[', 2),
-        ('{', 3),
-        ('<', 4)
-    ]);
+    let scores = HashMap::from([('(', 1), ('[', 2), ('{', 3), ('<', 4)]);
     let mut score = 0;
     for c in q {
         score *= 5;
@@ -54,7 +60,6 @@ fn completion_score(q: &VecDeque<char>) -> u64 {
     }
     return score;
 }
-
 
 fn part2(lines: &Vec<String>) -> u64 {
     let mut scores = Vec::new();
@@ -64,7 +69,7 @@ fn part2(lines: &Vec<String>) -> u64 {
         }
     }
     scores.sort();
-    return scores[scores.len()/2];
+    return scores[scores.len() / 2];
 }
 
 fn main() {
@@ -91,5 +96,4 @@ mod tests {
             assert_eq!(288957, part2(&lines));
         }
     }
-
 }
