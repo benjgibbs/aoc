@@ -79,4 +79,5 @@ mod tests {
         assert_eq!(int_to_bin_string(0), "0");
         assert_eq!(bin_string_to_int("0"), 0);
     }
+
 }
