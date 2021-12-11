@@ -131,4 +131,11 @@ mod tests {
             assert_eq!(1656, part1(&lines, 100));
         }
     }
+
+    #[test]
+    fn day11_example2() {
+        if let Ok(lines) = read_lines("./input/example11.txt") {
+            assert_eq!(195, part2(&lines));
+        }
+    }
 }
