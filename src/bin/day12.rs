@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, BTreeSet};
 
 use aoc::read_lines;
 
@@ -6,7 +6,7 @@ fn is_small_cave(cave: &str) -> bool {
     cave == cave.to_lowercase() 
 }
 
-fn search(from: &str, seen: &HashSet<String>, al: &HashMap<String, Vec<String>>) -> i32 {
+fn search(from: &str, seen: &BTreeSet<String>, al: &HashMap<String, Vec<String>>) -> i32 {
     let mut count = 0;
     for n in al[from].iter().filter(|c| !seen.contains(*c)) {
         if n == "start" {
@@ -22,43 +22,36 @@ fn search(from: &str, seen: &HashSet<String>, al: &HashMap<String, Vec<String>>)
     return count;
 }
 
-fn search2(from: &str, small_cave: &str, scc: i32,  seen: &HashSet<String>, al: &HashMap<String, Vec<String>>) -> HashSet<Vec<String>> {
-    let mut paths = HashSet::new();
+fn append(from: &str, part: &BTreeSet<Vec<String>>, result: &mut BTreeSet<Vec<String>>) {
+    for p in part {
+        let mut p2 = p.clone();
+        p2.push(from.to_string());
+        result.insert(p2);
+    }
+}
+
+fn search2(from: &str, small_cave: &str, scc: i32,  seen: &BTreeSet<String>, al: &HashMap<String, Vec<String>>) -> BTreeSet<Vec<String>> {
+
+    let mut paths = BTreeSet::new();
     for n in al[from].iter().filter(|c| !seen.contains(*c)) {
         if n == "start" {
             paths.insert(Vec::from(["start".to_string(), from.to_string()]));
         } else if is_small_cave(n) {
             if n == small_cave {
                 if scc == 0 {
-                    for p in search2(n, small_cave, 1, seen, al) {
-                        let mut p2 = p.clone();
-                        p2.push(from.to_string());
-                        paths.insert(p2);
-                    }
+                    append(from,&search2(n, small_cave, 1, seen, al), &mut paths);
                 } else {
                     let mut seen_copy = seen.clone();
                     seen_copy.insert(n.to_string());
-                    for p in search2(n, small_cave, 1, &seen_copy, al) {
-                        let mut p2 = p.clone();
-                        p2.push(from.to_string());
-                        paths.insert(p2);
-                    }
+                    append(from,&search2(n, small_cave, 1, &seen_copy, al), &mut paths);
                 }
             } else {
                 let mut seen_copy = seen.clone();
                 seen_copy.insert(n.to_string());
-                for p in search2(n, small_cave, scc, &seen_copy, al) {
-                    let mut p2 = p.clone();
-                    p2.push(from.to_string());
-                    paths.insert(p2);
-                }
+                append(from,&search2(n, small_cave, scc, &seen_copy, al), &mut paths);
             }
         } else {
-            for p in search2(n, small_cave, scc, seen, al) {
-                let mut p2 = p.clone();
-                p2.push(from.to_string());
-                paths.insert(p2);
-            }
+            append(from,&search2( n, small_cave, scc, seen, al), &mut paths)
         }
     }
     return paths;
@@ -78,23 +71,20 @@ fn get_adjacency_list(lines: &Vec<String>) -> HashMap<String, Vec<String>> {
 fn part1(lines: &Vec<String>) -> i32 {
     let al = get_adjacency_list(lines);    
 
-    let mut seen: HashSet<String> = HashSet::new();
+    let mut seen: BTreeSet<String> = BTreeSet::new();
     seen.insert("end".to_string());
-    return search("end", &seen, &al);
+    return search("end", &mut seen, &al);
 }
 
 fn part2(lines: &Vec<String>) -> i32 {
     let al = get_adjacency_list(lines);
-    let mut small_caves : HashSet<&String> = al.keys().filter(|k| is_small_cave(k)).collect();
-    small_caves.remove(&"start".to_string());
-    small_caves.remove(&"end".to_string());
-    println!("{:?}", small_caves);
+    let small_caves : BTreeSet<&String> = al.keys().filter(|k| is_small_cave(k) && **k != "start".to_string() && **k != "end".to_string()).collect();
 
-    let mut paths : HashSet<Vec<String>> = HashSet::new();
+    let mut paths : BTreeSet<Vec<String>> = BTreeSet::new();
     for sc in small_caves {
-        let mut seen: HashSet<String> = HashSet::new();
+        let mut seen: BTreeSet<String> = BTreeSet::new();
         seen.insert("end".to_string());
-        paths.extend(search2("end", sc, 0, &seen, &al));
+        paths.extend(search2( "end", sc, 0, &seen, &al));
     }
 
     return paths.len() as i32;
@@ -122,6 +112,20 @@ mod tests {
     fn day12_example2() {
         if let Ok(lines) = read_lines("./input/example12.txt") {
             assert_eq!(103, part2(&lines));
+        }
+    }
+
+    #[test]
+    fn day12_part1() {
+        if let Ok(lines) = read_lines("./input/day12.txt") {
+            assert_eq!(3485, part1(&lines));
+        }
+    }
+
+    #[test]
+    fn day12_part2() {
+        if let Ok(lines) = read_lines("./input/day12.txt") {
+            assert_eq!(85062, part2(&lines));
         }
     }
 
