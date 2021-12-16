@@ -1,4 +1,4 @@
-use std::{cmp::{max, Ordering, min}, collections::BinaryHeap};
+use std::{cmp::{max, Ordering}, collections::BinaryHeap};
 
 use aoc::read_lines;
 
