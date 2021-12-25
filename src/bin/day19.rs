@@ -163,8 +163,24 @@ fn parse_input(lines: &Vec<String>) -> Vec<Scanner> {
     results
 }
 
+fn cover_same_space(s1: &Scanner, s2: &Scanner) -> u32 {
+    for d1 in s1.distances.iter() {
+        for d2 in s2.distances.iter() {
+            let similar = count_similar(d1, d2);
+            if similar > 11 {
+                println!("scanner: {}, scanner: {} - {}", s1.id, s2.id, count_similar(d1, d2));
+                return similar;
+            }
+        }
+    }
+    return 0;
+}
+
 fn part1(lines: &Vec<String>) -> i32 {
     let scanners = parse_input(lines);
+
+    let mut observations = scanners.iter().map(|s| s.points.len() as i32).sum();
+
     for i in 0..scanners.len() - 1 {
         for j in (i + 1)..scanners.len() {
             let s1 = &scanners[i];
@@ -176,16 +192,12 @@ fn part1(lines: &Vec<String>) -> i32 {
             //         }
             //     }
             // }
-            for d1 in s1.distances.iter() {
-                for d2 in s2.distances.iter() {
-                    if count_similar(d1, d2) > 12 {
-                        println!("scanner 1: {}, scanner 2: {} - {}", s1.id, s2.id, count_similar(d1, d2));
-                    }
-                }
-            }
+
+            observations -= cover_same_space(s1, s2) as i32;
+    
         }
     }
-    return 0;
+    return observations;
 }
 
 fn part2(_lines: &Vec<String>) -> i32 {
@@ -194,6 +206,7 @@ fn part2(_lines: &Vec<String>) -> i32 {
 
 fn main() {
     if let Ok(lines) = read_lines("./input/day19.txt") {
+        // > 319
         println!("Part 1: {}", part1(&lines));
         println!("Part 2: {}", part2(&lines));
     }
@@ -207,13 +220,6 @@ mod tests {
     fn day19_example1() {
         if let Ok(lines) = read_lines("./input/example19.txt") {
             assert_eq!(79, part1(&lines));
-        }
-    }
-
-    #[test]
-    fn day19_example1a() {
-        if let Ok(lines) = read_lines("./input/example19-1.txt") {
-            assert_eq!(3, part1(&lines));
         }
     }
 
